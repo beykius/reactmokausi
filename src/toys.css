@@ -1,0 +1,31 @@
+.toys {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.toys h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.toy-list {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.toy {
+    font-size: 2rem;
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toy:active {
+    cursor: grabbing;
+}
+
+.toy:hover {
+    transform: scale(1.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
