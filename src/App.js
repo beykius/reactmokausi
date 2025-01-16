@@ -1,140 +1,81 @@
-import React, {useEffect, useState, useRef} from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect} from 'react';
 import './App.css';
-import Tree from "./tree";
-import LightControl from "./lightcontrol";
-import Toys from "./toys";
-import TimeoutClock from "./timeout";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import AnotherIndex from './pages/AnotherIndex';
+import UserPage from "./pages/UserPage";
+import SinglePost from './pages/SinglePost';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import Toolbar from './pages/Toolbar';
+import Upload from './pages/Upload';
+import UpdatePost from './pages/UpdatePost';
 
 function App() {
-    const [newArr, setNewArr] = useState([]); // State for storing the array
-    const [selectedPost, setSelectedPost] = useState(null); // State for the clicked post
-    const inpValue = useRef(); // Reference for the name input
-    const letterValue = useRef(); // Reference for the letter content input
-
-    function goToArray() {
-        if(newArr.length < 10){
-        const name = inpValue.current.value; // Get the name input value
-        const letterContent = letterValue.current.value; // Get the letter content input value
-
-        if (name && letterContent) {
-            const timeAdded = new Date().toLocaleString(); // Get the current time
-            const updatedArray = [...newArr]; // Clone the existing array
-            updatedArray.push({name, letterContent, timeAdded}); // Add new post
-            setNewArr(updatedArray); // Update state with the modified array
-
-            inpValue.current.value = ""; // Clear the name input
-            letterValue.current.value = ""; // Clear the letter content input
-        } else {
-            alert("Please fill out both fields!");
-        }}
-    }
-
-    function handlePostClick(post) {
-        setSelectedPost(post); // Set the clicked post as the selected post
-    }
+    const [products, setProducts] = useState([]);
+    const [secretKey, setSecretKey] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 
-    function deletePost(index) {
-        const updatedArray = newArr.filter((_, i) => i !== index); // Remove post by index
-        setNewArr(updatedArray);
-        if (selectedPost && selectedPost === newArr[index]) {
-            setSelectedPost(null); // Clear selected post if it was deleted
-        }
-    }
+    useEffect(() => {
+        fetch('http://167.99.138.67:1111/getallposts')
+            .then(res => res.json())
+            .then(data => setProducts(data.data));
+    }, []);
 
+    const handleLoginSuccess = (key, name) => {
+        setSecretKey(key);
+        setIsLoggedIn(true);
+    };
 
-    const postCount = newArr.length;
-    let progressBarColor = "green";
-    if (postCount >= 5 && postCount <= 9) {
-        progressBarColor = "yellow";
-    } else if (postCount >= 10) {
-        progressBarColor = "red";
-    }
-    const progressBarHeight = `${Math.min(postCount * 10, 100)}%`;
+    const handleDelete = (postId) => {
+        const postToDelete = {
+            secretKey: secretKey,
+            id: postId,
+        };
+
+        fetch('http://167.99.138.67:1111/deletepost', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(postToDelete),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setProducts(prevProducts => prevProducts.filter(product => product.id !== postId));
+                    alert('Post deleted successfully!');
+
+                } else {
+                    alert('Failed to delete post: ' + data.message);
+                }
+            });
+    };
+
 
     return (
-        <div className="app App-header">
-            <div className="keyboard">
-                <span className="key">S</span>
-                <span className="key">A</span>
-                <span className="key">N</span>
-                <span className="key">T</span>
-                <span className="key">A</span>
-                <span className="key">'</span>
-                <span className="key">S</span>
-                <span className="key"> </span>
-                <span className="key">L</span>
-                <span className="key">E</span>
-                <span className="key">T</span>
-                <span className="key">T</span>
-                <span className="key">E</span>
-                <span className="key">R</span>
-                <span className="key">S</span>
-            </div>
-            <div className="flex box">
+        <div>
+            <BrowserRouter>
                 <div>
-                    <input placeholder="Sender's name" ref={inpValue}/><br/>
-                    <input placeholder="Letter content" ref={letterValue}/><br/>
-                    <button onClick={goToArray}>send</button>
+                    <Toolbar isLoggedIn={isLoggedIn} />
                 </div>
-                <div>
-                    <div className="barContainer">
-                        <div
-                            className="bar"
-                            style={{
-                                backgroundColor: progressBarColor,
-                                height: progressBarHeight,
-                                width: "30px", // Fixed width for the bar
-                                transition: "height 0.3s ease, background-color 0.3s ease",
-                            }}
-                        ></div>
-                    </div>
+                <div className="d-flex justify-content-center">
+                    <Routes>
+                        <Route path='/login/' element={<Login secretKey={handleLoginSuccess} />} />
+                        <Route path='/register/' element={<Register />} />
+                        <Route path='/UpdatePost/:id' element={<UpdatePost secretKey={secretKey}/>} />
+                        <Route path='/user/:username' element={<UserPage handleDelete={handleDelete} />} />
+                        <Route path='/upload/' element={<Upload secretKey={secretKey} />} />
+                        <Route
+                            path='/user/:username/:postId'
+                            element={<SinglePost handleDelete={handleDelete} />}
+                        />
+                        <Route path="/" element={<AnotherIndex products={products} secretKey={secretKey} setProducts={setProducts} handleDelete={handleDelete}/>} />
+                    </Routes>
                 </div>
-                {/* List all posts */}
-                <div>
-                    <ul>
-                        {newArr.map((post, index) => (
-                            <li
-                                key={index}
-                                onClick={() => handlePostClick(post)} // Handle click on post
-                                style={{cursor: "pointer", margin: "5px 0", padding: "5px", border: "1px solid #ccc"}}
-                            >
-                                <strong>{post.name}</strong> - <em>{post.timeAdded}</em>
-                                <button
-                                    onClick={() => deletePost(index)}
-                                    style={{
-                                        marginLeft: "10px",
-                                        backgroundColor: "red",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "4px",
-                                        padding: "2px 5px",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    Delete
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div>
-                    <h3>Selected Post</h3>
-                    {selectedPost ? (
-                        <div>
-                            <p><strong>Name:</strong> {selectedPost.name}</p>
-                            <p><strong>Content:</strong> {selectedPost.letterContent}</p>
-                            <p><strong>Time Added:</strong> {selectedPost.timeAdded}</p>
-                        </div>
-                    ) : (
-                        <p>Click on a post to see its details.</p>
-                    )}
-                </div>
-            </div>
+            </BrowserRouter>
         </div>
-    )
-        ;
+    );
 }
 
 export default App;
