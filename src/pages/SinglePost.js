@@ -1,45 +1,75 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import useStore from "../store/main";
+import {useNavigate} from "react-router-dom";
 
-const SinglePost = ({ handleDelete, handleUpdate }) => {
-    const { username, postId } = useParams();
-    const [singlePost, setSinglePost] = useState(null); // Start with null to handle the loading state
+const SinglePost = () => {
 
-    useEffect(() => {
-        fetch(`http://167.99.138.67:1111/getsinglepost/${username}/${postId}`)
-            .then(res => res.json())
-            .then(data => {
-                setSinglePost(data.data || {});
-            });
-    }, [username, postId]);
+    const selectedPost = useStore((state) => state.selectedPost);
+    const loggedInUser = useStore((state) => state.loggedInUser);
+    const handleCommentChange = useStore((state) => state.handleCommentChange);
+    const handleComment = useStore((state) => state.handleComment);
+    const allComments = useStore((state) => state.allComments);
+    const comment = useStore((state) => state.newComment.comment);
+    const postComments = allComments.filter((c) => c.postId === selectedPost.id);
+    const deletePost = useStore((state) => state.deletePost);
+    const navigate = useNavigate();
+    const deleteComment = useStore((state) => state.deleteComment);
 
-    const handleLocalDelete = () => {
-        handleDelete(postId, () => setSinglePost(null));
+    const handleDeletePost = (postId) => {
+        deletePost(postId);
+        navigate(`/posts`);
+        console.log('post deleted')
     };
 
-    const loggedInUsername = localStorage.getItem('username');
-
-    if (singlePost === null) {
-        return <p>Loading post...</p>;
+    const handleDeleteComment = (commentId) => {
+        deleteComment(commentId);
+        console.log('comment deleted')
     }
 
-    if (!singlePost.title) {
-        return <p>Post deleted or does not exist.</p>;
-    }
 
     return (
-        <div className="cartBox d-flex me-2">
-            <img className='me-2' src={singlePost.image} alt={singlePost.title} />
-            <div>
-                <div className="title text-break">{singlePost.title}</div>
-                <p className='text-break'>{singlePost.description}</p>
-                {loggedInUsername === singlePost.username && (
-                    <button onClick={handleLocalDelete}>Delete</button>
-                )}
-                {loggedInUsername === singlePost.username && (
-                    <button onClick={handleUpdate}>Update Post</button>
-                )}
+        <div className='m-5 text-center'>
+            <img src={selectedPost.imageUrl} alt={selectedPost.title}
+                 style={{width: 'auto', height: '200px', marginBottom: '10px'}}/>
+            <h1>{selectedPost.title}</h1>
+
+            <p>Posted by: {selectedPost.author}</p>
+            <p>{selectedPost.description}</p>
+            {selectedPost.author === loggedInUser.name
+                ? <p>
+                    <button onClick={() => handleDeletePost(selectedPost.id)}>Delete Post</button>
+                </p>
+                : null}
+
+            <br/>
+            <h2>Comments</h2>
+            <p className='d-flex align-items-center flex-column mb-2'>
+                {postComments.map((commentObj, index) => (
+                    <div className='box mb-2' key={index}>
+                        <p className='fw-bold'> {commentObj.comment}</p>
+                        <p>Posted by: {commentObj.author}</p>
+                        {commentObj.author === loggedInUser.name
+                            ? <p>
+                                <button onClick={() => handleDeleteComment(commentObj.commentId)}>Delete Comment</button>
+                            </p>
+                            : null}
+                    </div>
+                ))}
+
+            </p>
+            <div className='d-flex'>
+                <input
+                    type="text"
+                    placeholder="Comment"
+                    name="comment"
+                    value={comment}
+                    onChange={handleCommentChange}
+                    required
+                />
+                <button onClick={handleComment}>Submit</button>
+
             </div>
+
         </div>
     );
 };

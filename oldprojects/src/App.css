@@ -1,9 +1,3 @@
-body{
- 
-    height: 100vh;
-}
-
-/* Modal styles */
 .modal {
     position: fixed;
     top: 0;
@@ -69,21 +63,33 @@ button:hover {
 
 
 
+.cartBox {
+    width: 600px;
+    padding: 10px;
+    border: 1px solid black;
+    margin: 2px;
+}
+.cartBox img {
+    max-width: 40%;
+    max-height: 40%;
+}
+footer {
+    background-color: #777;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
 .profile {
     border: 1px solid #ccc;
-    padding: 50px;
+    padding: 20px;
     border-radius: 10px;
-    text-wrap: wrap;
+    max-width: 600px;
     margin: auto;
-    background: white;
-    text-align: justify;
-    width: 50%;
 }
-
-.profile > div:hover{
-    color: #2e2580;
-}
-
 h1 {
     text-align: center;
     font-size: 1rem !important;
@@ -346,7 +352,7 @@ p {
     text-align: center;
     font-size: 16px;
     gap: 10px;
-    width: 90%;
+    width: 30%;
     height: auto;
 }
 

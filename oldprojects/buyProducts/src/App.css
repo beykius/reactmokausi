@@ -3,48 +3,6 @@ body{
     height: 100vh;
 }
 
-/* Modal styles */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    width: 300px;
-    text-align: center;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-}
-
-button {
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #ddd;
-}
-
-.error {
-    color: red;
-    font-size: 12px;
-}
-
 .App {
   text-align: center;
     color: #303030;
@@ -73,11 +31,9 @@ button:hover {
     border: 1px solid #ccc;
     padding: 50px;
     border-radius: 10px;
-    text-wrap: wrap;
+    max-width: 600px;
     margin: auto;
     background: white;
-    text-align: justify;
-    width: 50%;
 }
 
 .profile > div:hover{
@@ -346,7 +302,7 @@ p {
     text-align: center;
     font-size: 16px;
     gap: 10px;
-    width: 90%;
+    width: 30%;
     height: auto;
 }
 
