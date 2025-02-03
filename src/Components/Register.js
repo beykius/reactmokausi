@@ -1,61 +1,68 @@
 import React from 'react';
-import useStore from '../store/main';
-
-const Register = () => {
-
-    const myUser = useStore((state) => state.myUser);
-    const error = useStore((state) => state.error);
-    const handleChange = useStore((state) => state.handleChange);
-    const handleRegister = useStore((state) => state.handleRegister);
-    const registeredUsers = useStore((state) => state.registeredUsers);
-
-    console.log(registeredUsers)
+import {useRef} from "react";
+import {useState} from "react";
+import useStore from "../store/main";
 
 
+const Register = ({setError}) => {
+    const usernameRef = useRef();
+    const passwordOneRef = useRef();
+    const passwordTwoRef = useRef();
 
+
+    const register = () => {
+        const user = {
+            username: usernameRef.current.value,
+            passwordOne: passwordOneRef.current.value,
+            passwordTwo: passwordTwoRef.current.value,
+        };
+
+        const options = {
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify(user)
+        }
+        fetch("http://localhost:2007/register", options)
+            .then(res => res.json())
+            .then(response => {
+                console.log(response)
+                if (response.success) {
+                    setError(null)
+
+                } else {
+                    setError(response.message)
+                }
+            })
+    }
     return (
-        <div className="d-flex justify-content-center gap-4">
-            <div>
-                <input
-                    type="text"
-                    placeholder="Username"
-                    name="name"
-                    value={myUser.name}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    name="passwordOne"
-                    value={myUser.passwordOne}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Repeat Password"
-                    name="passwordTwo"
-                    value={myUser.passwordTwo}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="image Url"
-                    placeholder="Image Url"
-                    name="imageUrl"
-                    value={myUser.imageUrl}
-                    onChange={handleChange}
-                    required
-                />
-                <button onClick={handleRegister}>Register</button>
-                {error && <p style={{color: 'red'}}>{error}</p>}
-            </div>
 
+        <div>
+            <input
+                type="text"
+                placeholder="Username"
+                name="name"
+                ref={usernameRef}
+                required
+            />
+            <input
+                type="password"
+                placeholder="Password"
+                name="passwordOne"
+                ref={passwordOneRef}
+                required
+            />
+            <input
+                type="password"
+                placeholder="Repeat Password"
+                name="passwordTwo"
+                ref={passwordTwoRef}
+                required
+            />
+           <button onClick={register} type="submit">Register</button>
         </div>
-
-    )
-        ;
+    );
 };
 
 export default Register;
